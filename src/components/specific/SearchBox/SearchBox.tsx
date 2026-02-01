@@ -6,13 +6,14 @@ import { FaArrowRightLong } from "react-icons/fa6";
 import districtList from "@/assets/data/districtList";
 import seatList from "@/assets/data/seatList";
 import SearchableSelect from "@/components/common/SearchableSelect";
-import SectionTitle from "@/components/common/SectionTitle";
 import styles from "./SearchBox.module.css";
+import { useSelectedSeat } from "@/contexts/SelectedSeatContext";
 
 const EMPTY = "all";
 
 export default function SearchBox() {
   const router = useRouter();
+  const { setSelectedSeat } = useSelectedSeat();
   const [divisionValue, setDivisionValue] = useState<string>(EMPTY);
   const [districtValue, setDistrictValue] = useState<string>(EMPTY);
   const [seatValue, setSeatValue] = useState<string>(EMPTY);
@@ -89,22 +90,27 @@ export default function SearchBox() {
     setDivisionValue(value);
     setDistrictValue(EMPTY);
     setSeatValue(EMPTY);
+    setSelectedSeat(null);
   };
 
   const onDistrictChange = (value: string) => {
     setDistrictValue(value);
     setSeatValue(EMPTY);
+    setSelectedSeat(null);
   };
 
   const onSeatChange = (value: string) => {
     setSeatValue(value);
+    if (value === EMPTY) setSelectedSeat(null);
   };
 
   const handleSearch = () => {
     if (seatValue !== EMPTY) {
       const trimmedSeat = seatValue.trim();
       const seatNo = seatNameToNo.get(trimmedSeat);
-      if (seatNo) router.push(`/seats/${seatNo}`);
+      if (seatNo) {
+        setSelectedSeat({ seatNo, seatName: trimmedSeat });
+      }
     } else if (districtValue !== EMPTY) {
       const trimmedDistrict = districtValue.trim();
       router.push(`/districts/${encodeURIComponent(trimmedDistrict)}`);
@@ -158,7 +164,7 @@ export default function SearchBox() {
                   <button
                     onClick={handleSearch}
                     className="inline-flex items-center justify-center px-4 py-2.5 bg-PurpleDark hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={districtValue === EMPTY && seatValue === EMPTY}
+                    disabled={seatValue === EMPTY}
                     title="Search"
                   >
                     <FaArrowRightLong size={20} />

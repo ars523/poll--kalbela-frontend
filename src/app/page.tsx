@@ -30,7 +30,7 @@ import BigFight from "@/components/specific/BigFight";
 import SeatInfo from "@/components/specific/SeatInfo";
 import ZilaInfo from "@/components/specific/ZilaInfo";
 import PreviousDataPart from "@/components/specific/PreviousDataPart";
-import SearchBox from "@/components/specific/SearchBox/SearchBox";
+import HomeSearchSection from "@/components/specific/HomeSearchSection";
 
 const CACHE_SECONDS = 30;
 
@@ -131,7 +131,7 @@ export default async function Home() {
     <div className="lg:mb-14 mb-10">
       <MobileNavbar />
       <HeroPart />
-      <SearchBox />
+      <HomeSearchSection />
       {/* <SeatInfo />
       <ZilaInfo />
       <LiveTvWithTimeline newsData={newsLive} videoData={videos} />
