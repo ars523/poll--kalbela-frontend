@@ -1,0 +1,123 @@
+@font-face {
+  font-family: "kalbela";
+  src: url("../assets/SolaimanLipi/SolaimanLipi-Thin.ttf") format("woff2"),
+    /* Modern Browsers */ url("../assets/SolaimanLipi/SolaimanLipi-Thin.ttf"); /* Older Browsers */
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "kalbela";
+  src: url("../assets/SolaimanLipi/SolaimanLipi-Normal.ttf") format("woff2"),
+    /* Modern Browsers */ url("../assets/SolaimanLipi/SolaimanLipi-Normal.ttf"); /* Older Browsers */
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "kalbela";
+  src: url("../assets/SolaimanLipi/SolaimanLipi-Bold.ttf") format("woff2"),
+    /* Modern Browsers */ url("../assets/SolaimanLipi/SolaimanLipi-Bold.ttf"); /* Older Browsers */
+  font-weight: 700;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: "kalbela", sans-serif;
+  box-sizing: border-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px; /* Narrow width */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #a6a3a3; /* Change scrollbar color */
+  border-radius: 2px; /* Make it rounded */
+  min-height: 30px; /* Minimum height for thumb */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #767676; /* Darker on hover */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background-color: #f1f1f1; /* Track color */
+}
+
+.blinking-dot {
+  width: 15px;
+  height: 15px;
+  background-color: red;
+  border-radius: 50%;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    background-color: #ff0000;
+  } /* Bright Red */
+  50% {
+    opacity: 0.5;
+    background-color: #990000;
+  } /* Darker Red */
+}
+
+/* Gray pulse animation for skeleton loaders - only changes opacity, not color */
+@keyframes grayPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-gray-pulse {
+  animation: grayPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.reddot {
+  width: 12px;
+  height: 12px;
+  background-color: #e61414;
+  border-radius: 50%;
+  /* animation: pulse 1s infinite; */
+}
+
+.clip-path-triangle {
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+.clip-path-triangle2 {
+  clip-path: polygon(0 0, 100% 0, 0% 100%);
+}
+.clip-path-triangle3 {
+  clip-path: circle(100% at 0 100%);
+}
+.clip-path-circle {
+  clip-path: ellipse(64% 60% at 51% 100%);
+}
+.clip-path-circle2 {
+  clip-path: ellipse(64% 30% at 51% 100%);
+}
+
+.shadow-box {
+  box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Screen reader only - visually hidden but accessible to screen readers and SEO */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

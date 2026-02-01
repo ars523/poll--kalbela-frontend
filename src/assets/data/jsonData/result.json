@@ -1,0 +1,46 @@
+{
+  "data": [
+    {
+      "year": "২০১৮",
+      "alSeat": 267,
+      "bnpSeat": 7,
+      "jpSeat": 22,
+      "aoSeat": 4
+    },
+    {
+      "year": "২০১৪",
+      "alSeat": 234,
+      "bnpSeat": 0,
+      "jpSeat": 34,
+      "aoSeat": 32
+    },
+    {
+      "year": "২০০৮",
+      "alSeat": 230,
+      "bnpSeat": 30,
+      "jpSeat": 27,
+      "aoSeat": 13
+    },
+    {
+      "year": "২০০১",
+      "alSeat": 62,
+      "bnpSeat": 193,
+      "jpSeat": 14,
+      "aoSeat": 31
+    },
+    {
+      "year": "১৯৯৬",
+      "alSeat": 146,
+      "bnpSeat": 116,
+      "jpSeat": 32,
+      "aoSeat": 6
+    },
+    {
+      "year": "১৯৯১",
+      "alSeat": 88,
+      "bnpSeat": 142,
+      "jpSeat": 35,
+      "aoSeat": 35
+    }
+  ]
+}
