@@ -1,9 +1,11 @@
 "use server";
 
+import type { VoteSuccessData } from "@/types";
+
 const KBV_VOTE_URL = "https://kbv.ideahubbd.com/api/Vote";
 
 export type VoteResult =
-  | { success: true; message?: string }
+  | { success: true; message?: string; data: VoteSuccessData }
   | { success: false; message: string };
 
 export async function submitVote(
@@ -42,7 +44,12 @@ export async function submitVote(
       };
     }
 
-    return { success: true, message: (data?.message as string) || undefined };
+    const voteData = data?.data as VoteSuccessData | undefined;
+    return {
+      success: true,
+      message: (data?.message as string) || undefined,
+      data: voteData ?? ({} as VoteSuccessData),
+    };
   } catch (err) {
     console.error("submitVote error:", err);
     return {

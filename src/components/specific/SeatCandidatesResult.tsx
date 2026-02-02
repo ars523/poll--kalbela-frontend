@@ -18,6 +18,7 @@ import type {
   Seat,
   Candidate,
   VoteSeatResponse,
+  VoteSuccessData,
 } from "@/types";
 
 /** Fetches seat + vote data and returns merged seat; throws or returns null on error. */
@@ -165,10 +166,14 @@ export default function SeatCandidatesResult() {
         </SectionTitle>
         {votedCandidateIdToday != null && (
           <div className="mx-4 mt-2 mb-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            আপনি আজ এই আসনে ভোট দিয়েছেন
-            {votedCandidateToday
-              ? ` (${votedCandidateToday.candidateName})। আগামীকাল আবার ভোট দিতে পারবেন।`
-              : "। আগামীকাল আবার ভোট দিতে পারবেন।"}
+            আপনি আজ এই আসনে{" "}
+            {votedCandidateToday ? (
+              <>
+                <span className="font-bold">{votedCandidateToday.candidateName}</span> কে ভোট দিয়েছেন। আগামীকাল আবার ভোট দিতে পারবেন।
+              </>
+            ) : (
+              "ভোট দিয়েছেন। আগামীকাল আবার ভোট দিতে পারবেন।"
+            )}
           </div>
         )}
         {candidates.length === 0 ? (
@@ -283,11 +288,35 @@ export default function SeatCandidatesResult() {
                           c.candidateId,
                           1
                         );
-                        if (result.success) {
+                        if (result.success && result.data) {
                           setVotedForSeatToday(selectedSeat.seatNo, c.candidateId);
                           toast.success("ভোট সফলভাবে জমা হয়েছে");
-                          const updated = await fetchSeatWithVotes(selectedSeat.seatNo);
-                          if (updated) setCandidatesData(updated);
+                          const data: VoteSuccessData = result.data;
+                          setCandidatesData((prev) => {
+                            if (!prev) return prev;
+                            const totalVote = data.totalVote;
+                            const candidates: Candidate[] = prev.candidates.map(
+                              (can) => {
+                                if (can.candidateId === data.candidateId) {
+                                  return {
+                                    ...can,
+                                    votesReceived: data.voteCount,
+                                    votePercentage: data.votePercentage,
+                                  };
+                                }
+                                const pct =
+                                  totalVote > 0
+                                    ? (can.votesReceived / totalVote) * 100
+                                    : can.votePercentage ?? 0;
+                                return { ...can, votePercentage: pct };
+                              }
+                            );
+                            return {
+                              ...prev,
+                              candidates,
+                              totalVotes: totalVote,
+                            };
+                          });
                         } else {
                           toast.error(result.message);
                         }
@@ -303,11 +332,7 @@ export default function SeatCandidatesResult() {
                     }}
                     className="px-5 py-2.5 bg-PurpleDark hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors whitespace-nowrap"
                   >
-                    {votingCandidateId === c.candidateId
-                      ? "জমা হচ্ছে..."
-                      : votedCandidateIdToday != null
-                        ? "আজ ভোট দেওয়া হয়েছে"
-                        : "ভোট দিন"}
+                    {votingCandidateId === c.candidateId ? "জমা হচ্ছে..." : "ভোট দিন"}
                   </button>
                 </div>
               </div>

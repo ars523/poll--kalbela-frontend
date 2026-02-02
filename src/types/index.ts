@@ -197,3 +197,15 @@ export interface VoteSeatResponse {
   message: string;
   data: VoteSeatData;
 }
+
+// kbv POST Vote success response data
+export interface VoteSuccessData {
+  id: string;
+  seatId: number;
+  candidateId: number;
+  voteCount: number;
+  votePercentage: number;
+  totalVote: number;
+  createdAt: string;
+  updatedAt: string;
+}
