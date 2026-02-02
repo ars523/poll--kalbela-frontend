@@ -6,6 +6,10 @@ import axios from "axios";
 import { useSelectedSeat } from "@/contexts/SelectedSeatContext";
 import SectionTitle from "@/components/common/SectionTitle";
 import toBengaliDigits from "@/assets/lib/toBanglaDigits";
+import {
+  getVotedCandidateForSeatToday,
+  setVotedForSeatToday,
+} from "@/assets/lib/voteStorage";
 import EmptyCandidateMessage from "@/components/specific/EmptyCandidateMessage";
 import { toast } from "react-toastify";
 import { submitVote } from "@/app/actions/vote";
@@ -145,6 +149,13 @@ export default function SeatCandidatesResult() {
   }
 
   const candidates = candidatesData?.candidates ?? [];
+  const votedCandidateIdToday = selectedSeat
+    ? getVotedCandidateForSeatToday(selectedSeat.seatNo)
+    : null;
+  const votedCandidateToday =
+    votedCandidateIdToday != null
+      ? candidates.find((c) => c.candidateId === votedCandidateIdToday)
+      : null;
 
   return (
     <section ref={sectionRef} className="container mx-auto mt-2 px-4 lg:mt-4">
@@ -152,6 +163,14 @@ export default function SeatCandidatesResult() {
         <SectionTitle>
           {selectedSeat.seatName} – পছন্দের প্রার্থীকে ভোট দিন
         </SectionTitle>
+        {votedCandidateIdToday != null && (
+          <div className="mx-4 mt-2 mb-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            আপনি আজ এই আসনে ভোট দিয়েছেন
+            {votedCandidateToday
+              ? ` (${votedCandidateToday.candidateName})। আগামীকাল আবার ভোট দিতে পারবেন।`
+              : "। আগামীকাল আবার ভোট দিতে পারবেন।"}
+          </div>
+        )}
         {candidates.length === 0 ? (
           <div className="px-4 pb-6 pt-0 text-center">
             <p className="text-gray-500 py-8">কোন প্রার্থী পাওয়া যায়নি</p>
@@ -250,9 +269,13 @@ export default function SeatCandidatesResult() {
                 <div className="flex justify-center sm:justify-end">
                   <button
                     type="button"
-                    disabled={votingCandidateId === c.candidateId}
+                    disabled={
+                      votingCandidateId === c.candidateId ||
+                      votedCandidateIdToday != null
+                    }
                     onClick={async () => {
-                      if (!selectedSeat?.seatNo) return;
+                      if (!selectedSeat?.seatNo || votedCandidateIdToday != null)
+                        return;
                       setVotingCandidateId(c.candidateId);
                       try {
                         const result = await submitVote(
@@ -261,6 +284,7 @@ export default function SeatCandidatesResult() {
                           1
                         );
                         if (result.success) {
+                          setVotedForSeatToday(selectedSeat.seatNo, c.candidateId);
                           toast.success("ভোট সফলভাবে জমা হয়েছে");
                           const updated = await fetchSeatWithVotes(selectedSeat.seatNo);
                           if (updated) setCandidatesData(updated);
@@ -281,7 +305,9 @@ export default function SeatCandidatesResult() {
                   >
                     {votingCandidateId === c.candidateId
                       ? "জমা হচ্ছে..."
-                      : "ভোট দিন"}
+                      : votedCandidateIdToday != null
+                        ? "আজ ভোট দেওয়া হয়েছে"
+                        : "ভোট দিন"}
                   </button>
                 </div>
               </div>
