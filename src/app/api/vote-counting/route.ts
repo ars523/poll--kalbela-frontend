@@ -6,7 +6,7 @@ const VOTE_COUNTING_URL =
 export async function GET() {
   try {
     const res = await fetch(VOTE_COUNTING_URL, {
-      next: { revalidate: 60 },
+      next: { revalidate: 0 },
       headers: {
         "Content-Type": "application/json",
       },

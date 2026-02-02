@@ -178,3 +178,22 @@ export interface Candidate {
   isWinner: boolean;
   isFinalized: boolean;
 }
+
+// kbv Vote API (https://kbv.ideahubbd.com/api/Vote/seatNumber?seatNumber=N)
+export interface VoteSeatCandidate {
+  candidateId: number;
+  totalVote: number;
+  votePercentage: number;
+}
+
+export interface VoteSeatData {
+  seatNumber: number;
+  totalVote: number;
+  candidates: VoteSeatCandidate[];
+}
+
+export interface VoteSeatResponse {
+  success: boolean;
+  message: string;
+  data: VoteSeatData;
+}

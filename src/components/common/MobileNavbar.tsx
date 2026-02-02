@@ -53,7 +53,8 @@ const MobileNavbar = () => {
         </button>
       </div>
 
-      {isOpen && (
+      {/* Nav items commented out for now */}
+      {/* {isOpen && (
         <div className="flex flex-col gap-1 text-base px-8 text-gray-600">
           {mobileMenu.map((item, index) => (
             <Link
@@ -67,7 +68,7 @@ const MobileNavbar = () => {
             </Link>
           ))}
         </div>
-      )}
+      )} */}
     </div>
   );
 };

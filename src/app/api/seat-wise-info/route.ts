@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
     const res = await fetch(
-      'https://kalbela.ideahubbd.com/election/data/seat-wise-info.json',
+      "https://kalbela.ideahubbd.com/election/data/seat-wise-info.json",
       {
-        next: { revalidate: 60 },
+        next: { revalidate: 0 },
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       }
     );
@@ -23,15 +23,15 @@ export async function GET() {
     return NextResponse.json(data, {
       status: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Headers": "Content-Type",
       },
     });
   } catch (error) {
-    console.error('Error fetching seat-wise info:', error);
+    console.error("Error fetching seat-wise info:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch seat-wise info', data: [] },
+      { error: "Failed to fetch seat-wise info", data: [] },
       { status: 500 }
     );
   }

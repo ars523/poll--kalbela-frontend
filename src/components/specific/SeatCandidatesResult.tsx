@@ -6,13 +6,23 @@ import { useSelectedSeat } from "@/contexts/SelectedSeatContext";
 import SectionTitle from "@/components/common/SectionTitle";
 import toBengaliDigits from "@/assets/lib/toBanglaDigits";
 import EmptyCandidateMessage from "@/components/specific/EmptyCandidateMessage";
-import type { ElectionSeatResponse, Seat } from "@/types";
+import { toast } from "react-toastify";
+import { submitVote } from "@/app/actions/vote";
+import type {
+  ElectionSeatResponse,
+  Seat,
+  Candidate,
+  VoteSeatResponse,
+} from "@/types";
 
 export default function SeatCandidatesResult() {
   const { selectedSeat } = useSelectedSeat();
   const [candidatesData, setCandidatesData] = useState<Seat | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [votingCandidateId, setVotingCandidateId] = useState<number | null>(
+    null
+  );
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -25,22 +35,49 @@ export default function SeatCandidatesResult() {
     let cancelled = false;
     setLoading(true);
     setError(null);
+    const seatNo = selectedSeat.seatNo;
 
-    fetch("/api/vote-counting")
-      .then((res) => {
+    Promise.all([
+      fetch("/api/vote-counting").then((res) => {
         if (!res.ok) throw new Error("Failed to fetch candidates");
-        return res.json();
-      })
-      .then((raw: unknown) => {
+        return res.json() as Promise<ElectionSeatResponse>;
+      }),
+      fetch(`/api/vote/seat/${encodeURIComponent(seatNo)}`).then((res) => {
+        if (!res.ok) return null;
+        return res.json() as Promise<VoteSeatResponse | null>;
+      }),
+    ])
+      .then(([seatResponse, voteResponse]) => {
         if (cancelled) return;
-        const response = raw as ElectionSeatResponse;
-        const seats = response?.data ?? [];
-        const seatNo = Number(selectedSeat.seatNo);
-        const seat = seats.find((s: Seat) => s.seatNumber === seatNo) ?? null;
-        setCandidatesData(seat);
-        setError(seat ? null : "আসনের প্রার্থী পাওয়া যায়নি");
+        const seats = seatResponse?.data ?? [];
+        const seatNum = Number(seatNo);
+        const seat = seats.find((s: Seat) => s.seatNumber === seatNum) ?? null;
+        if (!seat) {
+          setCandidatesData(null);
+          setError("আসনের প্রার্থী পাওয়া যায়নি");
+          return;
+        }
+        const voteData = voteResponse?.success ? voteResponse.data : null;
+        const voteByCandidateId = new Map(
+          voteData?.candidates?.map((c) => [c.candidateId, c]) ?? []
+        );
+        const mergedCandidates: Candidate[] = seat.candidates.map((c) => {
+          const vote = voteByCandidateId.get(c.candidateId);
+          if (!vote) return c;
+          return {
+            ...c,
+            votesReceived: vote.totalVote,
+            votePercentage: vote.votePercentage,
+          };
+        });
+        setCandidatesData({
+          ...seat,
+          candidates: mergedCandidates,
+          totalVotes: voteData?.totalVote ?? seat.totalVotes,
+        });
+        setError(null);
       })
-      .catch((err) => {
+      .catch(() => {
         if (!cancelled) {
           setError("প্রার্থী তালিকা লোড হয়নি। আবার চেষ্টা করুন।");
           setCandidatesData(null);
@@ -195,9 +232,67 @@ export default function SeatCandidatesResult() {
                 <div className="flex justify-center sm:justify-end">
                   <button
                     type="button"
-                    className="px-5 py-2.5 bg-PurpleDark hover:bg-red-700 text-white font-medium rounded-lg transition-colors whitespace-nowrap"
+                    disabled={votingCandidateId === c.candidateId}
+                    onClick={async () => {
+                      if (!selectedSeat?.seatNo) return;
+                      setVotingCandidateId(c.candidateId);
+                      const result = await submitVote(
+                        Number(selectedSeat.seatNo),
+                        c.candidateId,
+                        1
+                      );
+                      setVotingCandidateId(null);
+                      if (result.success) {
+                        toast.success("ভোট সফলভাবে জমা হয়েছে");
+                        // Refetch to update counts
+                        const seatNo = selectedSeat.seatNo;
+                        const [seatRes, voteRes] = await Promise.all([
+                          fetch("/api/vote-counting").then((r) =>
+                            r.json() as Promise<ElectionSeatResponse>
+                          ),
+                          fetch(`/api/vote/seat/${encodeURIComponent(seatNo)}`).then(
+                            (r) =>
+                              r.ok
+                                ? (r.json() as Promise<VoteSeatResponse>)
+                                : null
+                          ),
+                        ]);
+                        const seats = seatRes?.data ?? [];
+                        const seatNum = Number(seatNo);
+                        const seat = seats.find(
+                          (s: Seat) => s.seatNumber === seatNum
+                        ) ?? null;
+                        if (seat && voteRes?.success) {
+                          const voteByCandidateId = new Map(
+                            voteRes.data?.candidates?.map((vc) => [
+                              vc.candidateId,
+                              vc,
+                            ]) ?? []
+                          );
+                          const merged = seat.candidates.map((can) => {
+                            const v = voteByCandidateId.get(can.candidateId);
+                            if (!v) return can;
+                            return {
+                              ...can,
+                              votesReceived: v.totalVote,
+                              votePercentage: v.votePercentage,
+                            };
+                          });
+                          setCandidatesData({
+                            ...seat,
+                            candidates: merged,
+                            totalVotes: voteRes.data?.totalVote ?? seat.totalVotes,
+                          });
+                        }
+                      } else {
+                        toast.error(result.message);
+                      }
+                    }}
+                    className="px-5 py-2.5 bg-PurpleDark hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors whitespace-nowrap"
                   >
-                    ভোট দিন
+                    {votingCandidateId === c.candidateId
+                      ? "জমা হচ্ছে..."
+                      : "ভোট দিন"}
                   </button>
                 </div>
               </div>

@@ -27,7 +27,7 @@ const Navbar = () => {
           />
         </Link>
         <div className="col-span-4 flex items-center justify-center">
-          <div className="flex space-x-6 text-lg font-medium items-center">
+          {/* <div className="flex space-x-6 text-lg font-medium items-center">
             <Link
               href="/"
               className={`hover:text-black ${
@@ -76,7 +76,7 @@ const Navbar = () => {
             >
               ফলাফল
             </Link>
-          </div>
+          </div> */}
         </div>
         <div className="flex justify-end items-center">
           <Image

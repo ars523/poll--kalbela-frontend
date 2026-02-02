@@ -29,8 +29,8 @@ const HeroPart = () => {
         className=" bg-cover w-full bg-center bg-no-repeat h-[250px] lg:h-[450px]"
       >
         <div className="bg-black bg-opacity-50 backdrop-blur-sm text-white py-2 justify-center items-center h-full flex flex-col">
-          {/* Mobile Navigation Items */}
-          <div className="block lg:hidden absolute top-0 left-0 right-0 w-full">
+          {/* Mobile Navigation Items - commented out for now */}
+          {/* <div className="block lg:hidden absolute top-0 left-0 right-0 w-full">
             <div className="flex flex-wrap justify-center gap-2 px-4">
               {mobileMenu.map((item, index) => (
                 <Link
@@ -44,7 +44,7 @@ const HeroPart = () => {
                 </Link>
               ))}
             </div>
-          </div>
+          </div> */}
           <div className="flex flex-col justify-center items-center text-center px-4">
             <h1
               className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white font-bold tracking-tight max-w-2xl"
