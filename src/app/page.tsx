@@ -6,6 +6,7 @@ import { generatePageMetadata } from "./config/metadata";
 import { domain } from "./config/api/api";
 import { fetchVoteCountingAsCandidates } from "@/apis";
 import type { Seat } from "@/types";
+import SeatInfo3 from "@/components/specific/SeatInfo";
 
 export const metadata = generatePageMetadata(domain);
 
@@ -27,6 +28,7 @@ export default async function Home() {
       <MobileNavbar />
       <HeroPart />
       <HomeSearchSection />
+      <SeatInfo3 className="lg:mt-14 mt-10" />
       {/* <HomeSeatPoolSection seats={seats} error={error} /> */}
     </div>
   );

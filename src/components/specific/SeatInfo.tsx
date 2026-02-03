@@ -17,8 +17,10 @@ const SeatInfo3 = ({ className }: { className?: string }) => {
     <section>
       <div className={cn("container mx-auto lg:mb-14 mb-10", className)}>
         <div className="bg-white rounded-2xl">
-          <div className="">
-            <SectionTitle>নিজ আসনের তথ্য জানতে ক্লিক করুন</SectionTitle>
+          <div className="mb-3">
+            <SectionTitle>
+              পছন্দের প্রার্থীকে ভোট দিতে আসন ক্লিক করুন
+            </SectionTitle>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 px-4 lg:px-6 pb-4 lg:pb-6">
             <div className="col-span-12 lg:col-span-8 order-2 lg:order-1 rounded-lg">
