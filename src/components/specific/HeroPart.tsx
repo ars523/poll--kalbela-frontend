@@ -53,7 +53,7 @@ const HeroPart = () => {
                   "-1px -1px 2.5px rgba(127,29,29,0.85), 1px -1px 2.5px rgba(127,29,29,0.85), -1px 1px 2.5px rgba(127,29,29,0.85), 1px 1px 2.5px rgba(127,29,29,0.85), 0 -1px 2.5px rgba(127,29,29,0.85), 0 1px 2.5px rgba(127,29,29,0.85), -1px 0 2.5px rgba(127,29,29,0.85), 1px 0 2.5px rgba(127,29,29,0.85), 0 0 16px rgba(211,28,33,0.22), 0 0 32px rgba(211,28,33,0.12), 0 2px 4px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.28), 0 8px 24px rgba(0,0,0,0.16)",
               }}
             >
-              আপনার পছন্দের প্রার্থীকে ভোট দিন
+              ত্রয়োদশ জাতীয় সংসদ নির্বাচন ২০২৬
             </h1>
             <p
               className="mt-4 text-base sm:text-lg md:text-xl text-white/95 font-medium tracking-wide"
@@ -62,7 +62,7 @@ const HeroPart = () => {
                   "0 1px 2px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.25), 0 0 20px rgba(211,28,33,0.08)",
               }}
             >
-              ত্রয়োদশ জাতীয় সংসদ নির্বাচন ২০২৬
+              কালবেলা অনলাইন জরিপ
             </p>
           </div>
         </div>

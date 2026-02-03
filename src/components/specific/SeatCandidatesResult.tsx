@@ -60,7 +60,7 @@ export default function SeatCandidatesResult({
   return (
     <section className="container mx-auto mt-2 px-4 lg:mt-4">
       <div className="rounded-2xl bg-white border border-gray-200 overflow-hidden">
-        <SectionTitle>{seatName} – পছন্দের প্রার্থীকে ভোট দিন</SectionTitle>
+        <SectionTitle>{seatName} – পছন্দের প্রার্থী</SectionTitle>
         {votedCandidateIdToday != null && (
           <div className="mx-4 mt-2 mb-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
             আপনি আজ এই আসনে{" "}
