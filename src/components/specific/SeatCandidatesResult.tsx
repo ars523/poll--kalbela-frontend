@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import axios from "axios";
 import clsx from "clsx";
@@ -34,24 +34,15 @@ export default function SeatCandidatesResult({
   const [votingCandidateId, setVotingCandidateId] = useState<number | null>(
     null
   );
-  const sectionRef = useRef<HTMLElement>(null);
-
   // Keep in sync when navigating to same component with different props
   useEffect(() => {
     setCandidatesData(initialSeat);
     setError(initialError);
   }, [initialSeat, initialError]);
 
-  // Scroll into view when section mounts with data
-  useEffect(() => {
-    if ((candidatesData || error) && sectionRef.current) {
-      sectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, []);
-
   if (error) {
     return (
-      <section ref={sectionRef} className="container mx-auto mt-4 px-4 lg:mt-6">
+      <section className="container mx-auto mt-4 px-4 lg:mt-6">
         <div className="rounded-2xl bg-white border border-gray-200 p-12 lg:p-16 min-h-[200px] lg:min-h-[260px] flex items-center justify-center text-center">
           <p className="text-gray-600">{error}</p>
         </div>
@@ -67,7 +58,7 @@ export default function SeatCandidatesResult({
       : null;
 
   return (
-    <section ref={sectionRef} className="container mx-auto mt-2 px-4 lg:mt-4">
+    <section className="container mx-auto mt-2 px-4 lg:mt-4">
       <div className="rounded-2xl bg-white border border-gray-200 overflow-hidden">
         <SectionTitle>{seatName} – পছন্দের প্রার্থীকে ভোট দিন</SectionTitle>
         {votedCandidateIdToday != null && (
