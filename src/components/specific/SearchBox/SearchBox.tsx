@@ -166,7 +166,7 @@ export default function SearchBox({
   return (
     <section className="mt-6 lg:mt-8">
       <div className="container mx-auto">
-        <div className="bg-white rounded-2xl border border-gray-300 py-8 p-4 text-gray-800">
+        <div className="bg-white lg:bg-white/65 lg:backdrop-blur-sm rounded-2xl border border-gray-300 lg:border-white/30 py-8 p-4 text-gray-800">
           <p className="text-left text-gray-800 text-lg lg:text-xl font-bold mb-4 lg:mb-5">
             আপনার পছন্দের প্রার্থীকে সমর্থন করতে আসন সিলেক্ট করুন
           </p>
