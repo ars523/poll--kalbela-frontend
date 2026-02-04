@@ -233,30 +233,34 @@ export default function SeatCandidatesResult({
                         আপনার ভোট
                       </p>
                     )}
-                    {/* প্রাপ্ত ভোট – label and percentage on left/right, bar below */}
-                    <div className="pt-2 space-y-1">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-medium text-gray-600">
-                          প্রাপ্ত ভোট
-                        </span>
-                        <span className="text-sm font-semibold text-gray-800">
-                          {typeof c.votePercentage === "number"
-                            ? `${toBengaliDigits(c.votePercentage.toFixed(1))}%`
-                            : "—"}
-                        </span>
+                    {/* প্রাপ্ত ভোট – only show after user has voted */}
+                    {votedCandidateIdToday != null && (
+                      <div className="pt-2 space-y-1">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs font-medium text-gray-600">
+                            প্রাপ্ত ভোট
+                          </span>
+                          <span className="text-sm font-semibold text-gray-800">
+                            {typeof c.votePercentage === "number"
+                              ? `${toBengaliDigits(
+                                  c.votePercentage.toFixed(1)
+                                )}%`
+                              : "—"}
+                          </span>
+                        </div>
+                        <div className="h-2.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-500 bg-green-500"
+                            style={{
+                              width: `${Math.min(
+                                100,
+                                Math.max(0, c.votePercentage ?? 0)
+                              )}%`,
+                            }}
+                          />
+                        </div>
                       </div>
-                      <div className="h-2.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-500 bg-green-500"
-                          style={{
-                            width: `${Math.min(
-                              100,
-                              Math.max(0, c.votePercentage ?? 0)
-                            )}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
+                    )}
                   </div>
 
                   {/* Party symbol – top right (circular), slightly bigger */}
