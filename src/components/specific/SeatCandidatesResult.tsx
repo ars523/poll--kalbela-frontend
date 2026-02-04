@@ -33,7 +33,7 @@ export default function SeatCandidatesResult({
     initialSeat
   );
   const [error, setError] = useState<string | null>(initialError);
-  const [votingCandidateId, setVotingCandidateId] = useState<number | null>(
+  const [optimisticVotedId, setOptimisticVotedId] = useState<number | null>(
     null
   );
   const [shareOpen, setShareOpen] = useState(false);
@@ -120,13 +120,15 @@ export default function SeatCandidatesResult({
         ) : (
           <div className="grid grid-cols-1 gap-4 px-4 pb-6">
             {candidates.map((c) => {
-              const isSelected = votedCandidateIdToday === c.candidateId;
+              const isSelected =
+                votedCandidateIdToday === c.candidateId ||
+                optimisticVotedId === c.candidateId;
+              const isPending = optimisticVotedId === c.candidateId;
               const isDisabled =
-                votedCandidateIdToday != null ||
-                votingCandidateId === c.candidateId;
+                votedCandidateIdToday != null || optimisticVotedId != null;
               const handleCardVote = async () => {
                 if (!seatNo || votedCandidateIdToday != null) return;
-                setVotingCandidateId(c.candidateId);
+                setOptimisticVotedId(c.candidateId);
                 try {
                   const result = await submitVote(
                     Number(seatNo),
@@ -163,7 +165,7 @@ export default function SeatCandidatesResult({
                       };
                     });
                   } else {
-                    toast.error(result.message);
+                    toast.error(result.message ?? "ভোট জমা হয়নি");
                   }
                 } catch (err) {
                   toast.error(
@@ -172,7 +174,7 @@ export default function SeatCandidatesResult({
                       : "ভোট জমা হয়নি। আবার চেষ্টা করুন।"
                   );
                 } finally {
-                  setVotingCandidateId(null);
+                  setOptimisticVotedId(null);
                 }
               };
               return (
@@ -182,7 +184,7 @@ export default function SeatCandidatesResult({
                   disabled={isDisabled}
                   onClick={handleCardVote}
                   className={clsx(
-                    "relative flex flex-wrap items-stretch gap-4 rounded-xl border p-4 sm:p-5 w-full text-left",
+                    "relative flex flex-wrap items-stretch gap-4 rounded-xl border p-4 sm:p-5 w-full text-left transition-colors",
                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-PurpleDark focus-visible:ring-offset-2",
                     "disabled:cursor-not-allowed",
                     isSelected
@@ -190,10 +192,18 @@ export default function SeatCandidatesResult({
                       : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/50"
                   )}
                   aria-pressed={isSelected}
+                  aria-busy={isPending}
                   aria-label={`${c.candidateName}, ${seatName} – ভোট দিন`}
                 >
+                  {/* Pending overlay: same green as card, opacity-only pulse (no red) */}
+                  {isPending && (
+                    <div
+                      className="absolute inset-0 rounded-xl bg-green-50/90 animate-card-pulse pointer-events-none z-0"
+                      aria-hidden
+                    />
+                  )}
                   {/* Selection indicator (radio style, filled with tick when selected) */}
-                  <div className="flex items-center shrink-0 [&_svg]:outline-none [&_svg]:border-0">
+                  <div className="relative z-10 flex items-center shrink-0 [&_svg]:outline-none [&_svg]:border-0">
                     <span
                       className={clsx(
                         "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 overflow-hidden outline-none",
@@ -210,7 +220,7 @@ export default function SeatCandidatesResult({
                   </div>
 
                   {/* Circular candidate photo */}
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200">
+                  <div className="relative z-10 w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200">
                     <Image
                       className="w-full h-full object-cover"
                       src={c.candidateImage}
@@ -222,49 +232,52 @@ export default function SeatCandidatesResult({
                   </div>
 
                   {/* Main content: name, constituency, party, progress bar */}
-                  <div className="flex-1 min-w-0 space-y-1 pr-16 sm:pr-20">
+                  <div className="relative z-10 flex-1 min-w-0 space-y-1 pr-16 sm:pr-20">
                     <h3 className="text-base sm:text-lg font-bold text-gray-800">
                       {c.candidateName}
                     </h3>
                     <p className="text-sm text-gray-600">{seatName}</p>
                     <p className="text-sm text-gray-600">{c.partyName}</p>
-                    {isSelected && (
-                      <p className="text-xs font-semibold text-green-700 pt-0.5">
-                        আপনার ভোট
-                      </p>
-                    )}
-                    {/* প্রাপ্ত ভোট – only show after user has voted */}
-                    {votedCandidateIdToday != null && (
-                      <div className="pt-2 space-y-1">
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs font-medium text-gray-600">
-                            প্রাপ্ত ভোট
-                          </span>
-                          <span className="text-sm font-semibold text-gray-800">
-                            {typeof c.votePercentage === "number"
-                              ? `${toBengaliDigits(
-                                  c.votePercentage.toFixed(1)
-                                )}%`
-                              : "—"}
-                          </span>
-                        </div>
-                        <div className="h-2.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full transition-all duration-500 bg-green-500"
-                            style={{
-                              width: `${Math.min(
-                                100,
-                                Math.max(0, c.votePercentage ?? 0)
-                              )}%`,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    )}
+
+                    {/* প্রাপ্ত ভোট – always reserve space; show content only after vote */}
+                    <div className="pt-2 space-y-1 min-h-[52px]">
+                      {votedCandidateIdToday != null ? (
+                        <>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-medium text-gray-600">
+                              প্রাপ্ত ভোট
+                            </span>
+                            <span className="text-sm font-semibold text-gray-800">
+                              {typeof c.votePercentage === "number"
+                                ? `${toBengaliDigits(
+                                    c.votePercentage.toFixed(1)
+                                  )}%`
+                                : "—"}
+                            </span>
+                          </div>
+                          <div className="h-2.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-500 bg-green-500"
+                              style={{
+                                width: `${Math.min(
+                                  100,
+                                  Math.max(0, c.votePercentage ?? 0)
+                                )}%`,
+                              }}
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <div
+                          className="h-2.5 w-full rounded-full overflow-hidden bg-transparent"
+                          aria-hidden
+                        />
+                      )}
+                    </div>
                   </div>
 
                   {/* Party symbol – top right (circular), slightly bigger */}
-                  <div className="absolute top-4 right-4 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center overflow-hidden shrink-0 pointer-events-none">
+                  <div className="absolute top-4 right-4 z-10 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center overflow-hidden shrink-0 pointer-events-none">
                     {c.partyLogo ? (
                       <Image
                         className="w-full h-full object-contain p-1"
@@ -278,12 +291,6 @@ export default function SeatCandidatesResult({
                       <span className="text-xs text-gray-400">প্রতীক</span>
                     )}
                   </div>
-
-                  {votingCandidateId === c.candidateId && (
-                    <span className="absolute bottom-4 right-4 text-sm text-gray-500">
-                      জমা হচ্ছে...
-                    </span>
-                  )}
                 </button>
               );
             })}
