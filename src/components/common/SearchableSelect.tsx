@@ -208,8 +208,10 @@ export default function SearchableSelect({
 
       {isOpen && (
         <div
-          className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto custom-scrollbar"
+          className="absolute z-[100] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto custom-scrollbar"
           role="listbox"
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
         >
           {allOptions.map((option, index) => {
             const displayText = option === "all" ? placeholder : option;
@@ -222,7 +224,11 @@ export default function SearchableSelect({
                 ref={(el) => {
                   optionRefs.current[index] = el;
                 }}
-                onClick={() => handleSelect(option)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelect(option);
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
                 onMouseEnter={() => setHighlightedIndex(index)}
                 role="option"
                 aria-selected={isSelected}

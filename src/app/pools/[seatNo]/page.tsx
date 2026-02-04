@@ -37,13 +37,17 @@ export default async function PoolPage({
 
   return (
     <div className="lg:mb-14 mb-10">
-      <HeroWithSearch initialSeatNo={seatNo} initialSeatName={seatName} />
-      <PoolView
-        seatNo={seatNo}
-        seatName={seatName}
-        initialSeat={initialSeat}
-        initialError={initialError}
-      />
+      <div className="relative z-10">
+        <HeroWithSearch initialSeatNo={seatNo} initialSeatName={seatName} />
+      </div>
+      <div className="relative z-0">
+        <PoolView
+          seatNo={seatNo}
+          seatName={seatName}
+          initialSeat={initialSeat}
+          initialError={initialError}
+        />
+      </div>
     </div>
   );
 }

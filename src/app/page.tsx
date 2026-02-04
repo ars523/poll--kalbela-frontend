@@ -23,9 +23,13 @@ export default async function Home() {
 
   return (
     <div className="lg:mb-14 mb-10">
-      <HeroWithSearch />
-      <SeatInfo3 className="lg:mt-14 mt-10" />
-      {/* <HomeSeatPoolSection seats={seats} error={error} /> */}
+      <div className="relative z-10">
+        <HeroWithSearch />
+      </div>
+      <div className="relative z-0">
+        <SeatInfo3 className="lg:mt-14 mt-10" />
+        {/* <HomeSeatPoolSection seats={seats} error={error} /> */}
+      </div>
     </div>
   );
 }

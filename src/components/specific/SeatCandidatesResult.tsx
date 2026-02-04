@@ -79,13 +79,17 @@ export default function SeatCandidatesResult({
 
   return (
     <section className="container mx-auto mt-2 px-4 lg:mt-4">
-      <div className="rounded-2xl bg-white border border-gray-200 overflow-hidden">
+      <div className="rounded-2xl bg-white border border-gray-200 overflow-visible">
         <SectionTitle
           action={
             <div className="relative" ref={shareDropdownRef}>
               <button
                 type="button"
-                onClick={() => setShareOpen((o) => !o)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShareOpen((o) => !o);
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
                 className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
                 title="শেয়ার করুন"
                 aria-label="শেয়ার অপশন"
@@ -95,7 +99,11 @@ export default function SeatCandidatesResult({
                 <MdMoreVert size={24} />
               </button>
               {shareOpen && (
-                <div className="absolute right-0 top-full mt-1 z-50 w-max rounded-xl border border-gray-200 bg-white p-4 shadow-lg">
+                <div
+                  className="absolute right-0 top-full mt-1 z-[100] w-max rounded-xl border border-gray-200 bg-white p-4 shadow-lg"
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
                   <SocialShare
                     title={"ত্রয়োদশ জাতীয় সংসদ নির্বাচন ২০২৬"}
                     iconSize={32}
@@ -189,7 +197,7 @@ export default function SeatCandidatesResult({
                     "disabled:cursor-not-allowed",
                     isSelected
                       ? "border-green-300 bg-green-50/90"
-                      : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/50"
+                      : "border-gray-200 bg-white hover:border-green-300 hover:bg-green-50/90 disabled:hover:border-gray-200 disabled:hover:bg-white"
                   )}
                   aria-pressed={isSelected}
                   aria-busy={isPending}
