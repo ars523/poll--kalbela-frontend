@@ -7,7 +7,7 @@ import clsx from "clsx";
 import SectionTitle from "@/components/common/SectionTitle";
 import SocialShare from "@/components/common/SocialShare";
 import toBengaliDigits from "@/assets/lib/toBanglaDigits";
-import { MdMoreVert } from "react-icons/md";
+import { MdMoreVert, MdCheck } from "react-icons/md";
 import {
   getVotedCandidateForSeatToday,
   setVotedForSeatToday,
@@ -112,200 +112,177 @@ export default function SeatCandidatesResult({
           </span>
           <span>আসন নং {toBengaliDigits(seatNo)}</span>
         </SectionTitle>
-        {votedCandidateIdToday != null && (
-          <div className="mx-4 mt-2 mb-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            আপনি আজ এই আসনে{" "}
-            {votedCandidateToday ? (
-              <>
-                <span className="font-bold">
-                  {votedCandidateToday.candidateName}
-                </span>{" "}
-                কে ভোট দিয়েছেন। আগামীকাল আবার ভোট দিতে পারবেন।
-              </>
-            ) : (
-              "ভোট দিয়েছেন। আগামীকাল আবার ভোট দিতে পারবেন।"
-            )}
-          </div>
-        )}
+
         {candidates.length === 0 ? (
           <div className="px-4 pb-6 pt-0 text-center">
             <p className="text-gray-500 py-8">কোন প্রার্থী পাওয়া যায়নি</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 px-4 pb-6">
-            {candidates.map((c) => (
-              <div
-                key={c.candidateId}
-                className={clsx(
-                  "grid grid-cols-1 sm:grid-cols-[auto_auto_1fr_180px_auto] lg:grid-cols-[auto_auto_1fr_220px_auto] gap-4 rounded-xl p-4 sm:p-5 items-center border",
-                  votedCandidateIdToday === c.candidateId
-                    ? "shadow-sm"
-                    : "border border-gray-200 bg-gray-50/50"
-                )}
-              >
-                {/* Col 1: image only */}
-                <div className="w-full sm:w-28 lg:w-36 aspect-square sm:aspect-auto sm:h-[120px] bg-gray-100 rounded-lg overflow-hidden justify-self-center sm:justify-self-start">
-                  <Image
-                    className="w-full h-full object-cover"
-                    src={c.candidateImage}
-                    width={144}
-                    height={120}
-                    alt={`${c.candidateName} এর ছবি`}
-                    unoptimized={true}
-                  />
-                </div>
-
-                {/* Col 2: seat info, name, party, symbol name */}
-                <div className="space-y-1 min-w-0">
-                  <p className="text-xs text-gray-600 flex flex-wrap items-center gap-x-1.5">
-                    <span>{seatName}</span>
-                    <span className="text-gray-400" aria-hidden="true">
-                      •
+          <div className="grid grid-cols-1 gap-4 px-4 pb-6">
+            {candidates.map((c) => {
+              const isSelected = votedCandidateIdToday === c.candidateId;
+              const isDisabled =
+                votedCandidateIdToday != null ||
+                votingCandidateId === c.candidateId;
+              const handleCardVote = async () => {
+                if (!seatNo || votedCandidateIdToday != null) return;
+                setVotingCandidateId(c.candidateId);
+                try {
+                  const result = await submitVote(
+                    Number(seatNo),
+                    c.candidateId,
+                    1
+                  );
+                  if (result.success && result.data) {
+                    setVotedForSeatToday(seatNo, c.candidateId);
+                    toast.success("ভোট সফলভাবে জমা হয়েছে");
+                    const data: VoteSuccessData = result.data;
+                    setCandidatesData((prev) => {
+                      if (!prev) return prev;
+                      const totalVote = data.totalVote;
+                      const candidates: Candidate[] = prev.candidates.map(
+                        (can) => {
+                          if (can.candidateId === data.candidateId) {
+                            return {
+                              ...can,
+                              votesReceived: data.voteCount,
+                              votePercentage: data.votePercentage,
+                            };
+                          }
+                          const pct =
+                            totalVote > 0
+                              ? (can.votesReceived / totalVote) * 100
+                              : can.votePercentage ?? 0;
+                          return { ...can, votePercentage: pct };
+                        }
+                      );
+                      return {
+                        ...prev,
+                        candidates,
+                        totalVotes: totalVote,
+                      };
+                    });
+                  } else {
+                    toast.error(result.message);
+                  }
+                } catch (err) {
+                  toast.error(
+                    axios.isAxiosError(err)
+                      ? err.message
+                      : "ভোট জমা হয়নি। আবার চেষ্টা করুন।"
+                  );
+                } finally {
+                  setVotingCandidateId(null);
+                }
+              };
+              return (
+                <button
+                  key={c.candidateId}
+                  type="button"
+                  disabled={isDisabled}
+                  onClick={handleCardVote}
+                  className={clsx(
+                    "relative flex flex-wrap items-stretch gap-4 rounded-xl border p-4 sm:p-5 w-full text-left",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-PurpleDark focus-visible:ring-offset-2",
+                    "disabled:cursor-not-allowed",
+                    isSelected
+                      ? "border-green-300 bg-green-50/90"
+                      : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/50"
+                  )}
+                  aria-pressed={isSelected}
+                  aria-label={`${c.candidateName}, ${seatName} – ভোট দিন`}
+                >
+                  {/* Selection indicator (radio style, filled with tick when selected) */}
+                  <div className="flex items-center shrink-0 [&_svg]:outline-none [&_svg]:border-0">
+                    <span
+                      className={clsx(
+                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 overflow-hidden outline-none",
+                        isSelected
+                          ? "border-green-600 bg-green-600 text-white"
+                          : "border-gray-400 bg-transparent"
+                      )}
+                      aria-hidden
+                    >
+                      {isSelected && (
+                        <MdCheck size={14} className="fill-current block" />
+                      )}
                     </span>
-                    <span>আসন নং {toBengaliDigits(seatNo)}</span>
-                  </p>
-                  <h3 className="text-lg font-bold text-PurpleDark">
-                    {c.candidateName}
-                  </h3>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold text-gray-700">
-                      দলের নাম:
-                    </span>{" "}
-                    {c.partyName}
-                  </p>
-                  {c.partySymbol ? (
-                    <p className="text-sm text-gray-700">
-                      <span className="font-semibold text-gray-700">
-                        প্রতীক:
-                      </span>{" "}
-                      {c.partySymbol}
-                    </p>
-                  ) : null}
-                </div>
+                  </div>
 
-                {/* Col 3: আপনার ভোট badge (dedicated column) */}
-                <div className="flex items-center justify-start sm:justify-center min-w-0">
-                  {votedCandidateIdToday === c.candidateId ? (
-                    <span className="inline-flex items-center rounded-md border border-green-200 bg-green-50 px-2 py-1.5 text-xs font-semibold text-green-800 sm:px-4 sm:py-2 sm:text-sm">
-                      আপনার ভোট
-                    </span>
-                  ) : null}
-                </div>
+                  {/* Circular candidate photo */}
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200">
+                    <Image
+                      className="w-full h-full object-cover"
+                      src={c.candidateImage}
+                      width={96}
+                      height={96}
+                      alt=""
+                      unoptimized={true}
+                    />
+                  </div>
 
-                {/* Col 4: vote result – symbol left, progress bar + count + % right */}
-                <div className="flex items-stretch gap-3 rounded-xl border-2 border-PurpleDark/20 bg-PurpleLight/50 p-4 sm:p-5 min-w-0">
-                  <div className="w-12 h-12 shrink-0 rounded-xl bg-white flex items-center justify-center overflow-hidden border-2 border-PurpleDark/30 shadow-sm self-center">
+                  {/* Main content: name, constituency, party, progress bar */}
+                  <div className="flex-1 min-w-0 space-y-1 pr-16 sm:pr-20">
+                    <h3 className="text-base sm:text-lg font-bold text-gray-800">
+                      {c.candidateName}
+                    </h3>
+                    <p className="text-sm text-gray-600">{seatName}</p>
+                    <p className="text-sm text-gray-600">{c.partyName}</p>
+                    {isSelected && (
+                      <p className="text-xs font-semibold text-green-700 pt-0.5">
+                        আপনার ভোট
+                      </p>
+                    )}
+                    {/* প্রাপ্ত ভোট – label and percentage on left/right, bar below */}
+                    <div className="pt-2 space-y-1">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-medium text-gray-600">
+                          প্রাপ্ত ভোট
+                        </span>
+                        <span className="text-sm font-semibold text-gray-800">
+                          {typeof c.votePercentage === "number"
+                            ? `${toBengaliDigits(c.votePercentage.toFixed(1))}%`
+                            : "—"}
+                        </span>
+                      </div>
+                      <div className="h-2.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-500 bg-green-500"
+                          style={{
+                            width: `${Math.min(
+                              100,
+                              Math.max(0, c.votePercentage ?? 0)
+                            )}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Party symbol – top right (circular), slightly bigger */}
+                  <div className="absolute top-4 right-4 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center overflow-hidden shrink-0 pointer-events-none">
                     {c.partyLogo ? (
                       <Image
                         className="w-full h-full object-contain p-1"
                         src={c.partyLogo}
-                        width={48}
-                        height={48}
-                        alt={c.partySymbol ?? "প্রতীক"}
+                        width={56}
+                        height={56}
+                        alt=""
                         unoptimized={true}
                       />
                     ) : (
                       <span className="text-xs text-gray-400">প্রতীক</span>
                     )}
                   </div>
-                  <div className="flex-1 min-w-0 space-y-2">
-                    <p className="text-xs font-bold text-PurpleDark uppercase tracking-wide">
-                      ফলাফল
-                    </p>
-                    <div className="flex justify-between text-sm font-medium">
-                      <span className="text-gray-700">
-                        {typeof c.votesReceived === "number"
-                          ? c.votesReceived.toLocaleString("bn-BD")
-                          : "—"}
-                      </span>
-                      <span className="font-bold text-PurpleDark">
-                        {typeof c.votePercentage === "number"
-                          ? `${toBengaliDigits(c.votePercentage.toFixed(1))}%`
-                          : "—"}
-                      </span>
-                    </div>
-                    <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-PurpleDark rounded-full transition-all duration-500"
-                        style={{
-                          width: `${Math.min(
-                            100,
-                            Math.max(0, c.votePercentage ?? 0)
-                          )}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
 
-                {/* Col 5: vote button */}
-                <div className="flex justify-center sm:justify-end">
-                  <button
-                    type="button"
-                    disabled={
-                      votingCandidateId === c.candidateId ||
-                      votedCandidateIdToday != null
-                    }
-                    onClick={async () => {
-                      if (!seatNo || votedCandidateIdToday != null) return;
-                      setVotingCandidateId(c.candidateId);
-                      try {
-                        const result = await submitVote(
-                          Number(seatNo),
-                          c.candidateId,
-                          1
-                        );
-                        if (result.success && result.data) {
-                          setVotedForSeatToday(seatNo, c.candidateId);
-                          toast.success("ভোট সফলভাবে জমা হয়েছে");
-                          const data: VoteSuccessData = result.data;
-                          setCandidatesData((prev) => {
-                            if (!prev) return prev;
-                            const totalVote = data.totalVote;
-                            const candidates: Candidate[] = prev.candidates.map(
-                              (can) => {
-                                if (can.candidateId === data.candidateId) {
-                                  return {
-                                    ...can,
-                                    votesReceived: data.voteCount,
-                                    votePercentage: data.votePercentage,
-                                  };
-                                }
-                                const pct =
-                                  totalVote > 0
-                                    ? (can.votesReceived / totalVote) * 100
-                                    : can.votePercentage ?? 0;
-                                return { ...can, votePercentage: pct };
-                              }
-                            );
-                            return {
-                              ...prev,
-                              candidates,
-                              totalVotes: totalVote,
-                            };
-                          });
-                        } else {
-                          toast.error(result.message);
-                        }
-                      } catch (err) {
-                        toast.error(
-                          axios.isAxiosError(err)
-                            ? err.message
-                            : "ভোট জমা হয়নি। আবার চেষ্টা করুন।"
-                        );
-                      } finally {
-                        setVotingCandidateId(null);
-                      }
-                    }}
-                    className="px-5 py-2.5 bg-PurpleDark hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors whitespace-nowrap"
-                  >
-                    {votingCandidateId === c.candidateId
-                      ? "জমা হচ্ছে..."
-                      : "ভোট দিন"}
-                  </button>
-                </div>
-              </div>
-            ))}
+                  {votingCandidateId === c.candidateId && (
+                    <span className="absolute bottom-4 right-4 text-sm text-gray-500">
+                      জমা হচ্ছে...
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
