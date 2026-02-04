@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import axios from "axios";
 import clsx from "clsx";
 import SectionTitle from "@/components/common/SectionTitle";
 import SocialShare from "@/components/common/SocialShare";
 import toBengaliDigits from "@/assets/lib/toBanglaDigits";
+import { MdMoreVert } from "react-icons/md";
 import {
   getVotedCandidateForSeatToday,
   setVotedForSeatToday,
@@ -35,11 +36,29 @@ export default function SeatCandidatesResult({
   const [votingCandidateId, setVotingCandidateId] = useState<number | null>(
     null
   );
+  const [shareOpen, setShareOpen] = useState(false);
+  const shareDropdownRef = useRef<HTMLDivElement>(null);
+
   // Keep in sync when navigating to same component with different props
   useEffect(() => {
     setCandidatesData(initialSeat);
     setError(initialError);
   }, [initialSeat, initialError]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        shareDropdownRef.current &&
+        !shareDropdownRef.current.contains(e.target as Node)
+      ) {
+        setShareOpen(false);
+      }
+    };
+    if (shareOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [shareOpen]);
 
   if (error) {
     return (
@@ -63,10 +82,27 @@ export default function SeatCandidatesResult({
       <div className="rounded-2xl bg-white border border-gray-200 overflow-hidden">
         <SectionTitle
           action={
-            <SocialShare
-              title={"ত্রয়োদশ জাতীয় সংসদ নির্বাচন ২০২৬"}
-              iconSize={26}
-            />
+            <div className="relative" ref={shareDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setShareOpen((o) => !o)}
+                className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+                title="শেয়ার করুন"
+                aria-label="শেয়ার অপশন"
+                aria-expanded={shareOpen}
+                aria-haspopup="true"
+              >
+                <MdMoreVert size={24} />
+              </button>
+              {shareOpen && (
+                <div className="absolute right-0 top-full mt-1 z-50 w-max rounded-xl border border-gray-200 bg-white p-4 shadow-lg">
+                  <SocialShare
+                    title={"ত্রয়োদশ জাতীয় সংসদ নির্বাচন ২০২৬"}
+                    iconSize={32}
+                  />
+                </div>
+              )}
+            </div>
           }
           className="justify-start flex-wrap gap-3 items-center"
         >

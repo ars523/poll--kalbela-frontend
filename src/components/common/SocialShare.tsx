@@ -69,41 +69,41 @@ export default function SocialShare({
 
   return (
     <div
-      className={`flex items-center gap-2 flex-wrap ${className}`}
+      className={`flex flex-col gap-3 ${className}`}
       aria-label="শেয়ার করুন"
     >
-      <span className="text-base text-gray-700 font-semibold mr-3 hidden md:block">
-        শেয়ার করুন
-      </span>
-      <FacebookShareButton url={shareUrl}>
-        <FacebookIcon size={iconSize} round={round} />
-      </FacebookShareButton>
-      <FacebookMessengerShareButton url={shareUrl} appId="">
-        <FacebookMessengerIcon size={iconSize} round={round} />
-      </FacebookMessengerShareButton>
-      <WhatsappShareButton url={shareUrl} title={title}>
-        <WhatsappIcon size={iconSize} round={round} />
-      </WhatsappShareButton>
-      <TwitterShareButton url={shareUrl} title={title}>
-        <XIcon size={iconSize} round={round} />
-      </TwitterShareButton>
-      <LinkedinShareButton url={shareUrl} title={title} summary={description}>
-        <LinkedinIcon size={iconSize} round={round} />
-      </LinkedinShareButton>
-      <button
-        type="button"
-        onClick={handleCopyLink}
-        className="inline-flex items-center justify-center rounded-full bg-green-800 hover:bg-green-700 transition-colors shrink-0 text-white"
-        style={{ width: iconSize, height: iconSize }}
-        title={copied ? "কপি হয়েছে" : "লিংক কপি করুন"}
-        aria-label={copied ? "কপি হয়েছে" : "লিংক কপি করুন"}
-      >
-        {copied ? (
-          <MdCheck size={iconSize * 0.55} className="fill-white" />
-        ) : (
-          <MdContentCopy size={iconSize * 0.55} className="fill-white" />
-        )}
-      </button>
+      <span className="text-base text-gray-700 font-semibold">শেয়ার করুন</span>
+      <div className="flex items-center gap-2 flex-wrap">
+        <FacebookShareButton url={shareUrl}>
+          <FacebookIcon size={iconSize} round={round} />
+        </FacebookShareButton>
+        <FacebookMessengerShareButton url={shareUrl} appId="">
+          <FacebookMessengerIcon size={iconSize} round={round} />
+        </FacebookMessengerShareButton>
+        <WhatsappShareButton url={shareUrl} title={title}>
+          <WhatsappIcon size={iconSize} round={round} />
+        </WhatsappShareButton>
+        <TwitterShareButton url={shareUrl} title={title}>
+          <XIcon size={iconSize} round={round} />
+        </TwitterShareButton>
+        <LinkedinShareButton url={shareUrl} title={title} summary={description}>
+          <LinkedinIcon size={iconSize} round={round} />
+        </LinkedinShareButton>
+        <button
+          type="button"
+          onClick={handleCopyLink}
+          className="inline-flex items-center justify-center rounded-full bg-green-800 hover:bg-green-700 transition-colors shrink-0 text-white"
+          style={{ width: iconSize, height: iconSize }}
+          title={copied ? "কপি হয়েছে" : "লিংক কপি করুন"}
+          aria-label={copied ? "কপি হয়েছে" : "লিংক কপি করুন"}
+        >
+          {copied ? (
+            <MdCheck size={iconSize * 0.55} className="fill-white" />
+          ) : (
+            <MdContentCopy size={iconSize * 0.55} className="fill-white" />
+          )}
+        </button>
+      </div>
     </div>
   );
 }
