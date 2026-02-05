@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
-import axios from "axios";
 import clsx from "clsx";
 import SectionTitle from "@/components/common/SectionTitle";
 import SocialShare from "@/components/common/SocialShare";
@@ -12,7 +11,6 @@ import {
   getVotedCandidateForSeatToday,
   setVotedForSeatToday,
 } from "@/assets/lib/voteStorage";
-import { toast } from "react-toastify";
 import { submitVote } from "@/app/actions/vote";
 import type { Seat, Candidate, VoteSuccessData } from "@/types";
 
@@ -146,7 +144,6 @@ export default function SeatCandidatesResult({
                   );
                   if (result.success && result.data) {
                     setVotedForSeatToday(seatNo, c.candidateId);
-                    toast.success("ভোট সফলভাবে জমা হয়েছে");
                     const data: VoteSuccessData = result.data;
                     setCandidatesData((prev) => {
                       if (!prev) return prev;
@@ -173,15 +170,9 @@ export default function SeatCandidatesResult({
                         totalVotes: totalVote,
                       };
                     });
-                  } else {
-                    toast.error(result.message ?? "ভোট জমা হয়নি");
                   }
-                } catch (err) {
-                  toast.error(
-                    axios.isAxiosError(err)
-                      ? err.message
-                      : "ভোট জমা হয়নি। আবার চেষ্টা করুন।"
-                  );
+                } catch {
+                  // Vote failed; optimistic state is reverted in finally
                 } finally {
                   setOptimisticVotedId(null);
                 }
